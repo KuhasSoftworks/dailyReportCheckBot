@@ -3,7 +3,7 @@ name: Daily Discord Report Check
 on:
   # Run at 00:05 KST every day (15:05 UTC)
   schedule:
-    - cron: '5 15 * * *'
+    - cron: '5 15 * * 1-5'
   # Allow manual triggering from the Actions tab
   workflow_dispatch:
 
@@ -19,6 +19,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Skip if Korean public holiday
+        run: |
+          python -m pip install --quiet holidays
+          python - <<'PY'
+          import datetime, sys
+          import holidays
+          # Current date in Asia/Seoul
+          today_kr = datetime.datetime.now(
+              datetime.timezone(datetime.timedelta(hours=9))
+          ).date()
+          kr_holidays = holidays.KR()  # Korean public holidays
+          if today_kr in kr_holidays:
+              print(f"오늘은 공휴일입니다: {kr_holidays[today_kr]} ➜ 작업 건너뛰기")
+              sys.exit(78)  # neutral exit code → job skipped
+          else:
+              print("공휴일이 아니므로 계속 진행합니다.")
+          PY
+          echo "KR_HOLIDAY_CHECK=done"
 
       - name: Install dependencies
         run: |
