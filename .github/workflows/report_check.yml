@@ -27,12 +27,11 @@ jobs:
           import datetime, sys
           import holidays
           # Current date in Asia/Seoul
-          today_kr = datetime.datetime.now(
-              datetime.timezone(datetime.timedelta(hours=9))
-          ).date()
+          today_kr = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).date()
+          yesterday_kr = today_kr - datetime.timedelta(days=1)
           kr_holidays = holidays.KR()  # Korean public holidays
-          if today_kr in kr_holidays:
-              print(f"오늘은 공휴일입니다: {kr_holidays[today_kr]} ➜ 작업 건너뛰기")
+          if yesterday_kr in kr_holidays:
+              print(f"어제는 공휴일이었습니다: {kr_holidays[yesterday_kr]} ➜ 작업 건너뛰기")
               sys.exit(78)  # neutral exit code → job skipped
           else:
               print("공휴일이 아니므로 계속 진행합니다.")
